@@ -133,6 +133,69 @@ proposed = score_transformer(layers, alpha=1.0)
 - `src/cs5491_nsc/nsc_utils.py` 为上游 vendored 实现，修改前先确认是否应在上游仓库进行。
 - CI（`.github/workflows/ci.yml`）在 Python 3.10 与 3.12 上运行 lint、测试与 starter 自检。
 
+## Git 协作规范
+
+当前以 `dev` 为日常开发的集成分支，采用「一个任务一个分支」，不按成员维护长期个人分支。
+
+### 分支用途与命名
+
+| 分支 | 用途 |
+|---|---|
+| `main` | 保存经过验证的稳定版本与课程里程碑版本，由 `dev` 通过 PR 合并 |
+| `dev` | 汇总日常开发成果；任务分支从这里创建，完成后通过 PR 合并回来 |
+| `feat/<用户名>-<任务>` | 新功能，例如 `feat/zhang-evaluation-adapter` |
+| `fix/<用户名>-<问题>` | 修复问题，例如 `fix/li-score-validation` |
+| `docs/<用户名>-<内容>` | 文档更新，例如 `docs/wang-experiment-guide` |
+| `chore/<用户名>-<任务>` | 依赖、工具或配置维护，例如 `chore/chen-ci-config` |
+
+用户名使用 GitHub 用户名或姓名拼音，任务描述使用简短英文、小写字母和连字符。开始前先约定任务范围及主要修改文件，避免重复开发。
+
+### 开始开发
+
+先确认工作区没有未提交的改动，再同步 `dev` 并创建任务分支。以下示例中的用户名和任务名需替换为自己的：
+
+```bash
+git switch dev
+git pull --ff-only origin dev
+git switch -c feat/zhang-evaluation-adapter
+```
+
+首次克隆后，如果本地尚无 `dev` 分支，先运行 `git fetch origin`，再用 `git switch --track origin/dev` 创建本地跟踪分支。
+
+### 提交与发起 PR
+
+在已激活项目虚拟环境的终端中运行检查，再检查差异、按文件选择要提交的改动：
+
+```bash
+make check starter demo
+git status --short
+git diff
+# 示例：替换为本次任务实际修改的文件
+git add src/cs5491_nsc/student_score.py tests/test_student_score.py
+git diff --cached
+git commit -m "feat: add residual-context scoring control"
+git push -u origin feat/zhang-evaluation-adapter
+```
+
+提交信息采用 `类型: 简短说明`，类型与任务一致，例如 `feat`、`fix`、`docs` 或 `chore`；每次提交尽量只处理一件事。
+
+在 GitHub 创建 Pull Request（PR），**目标分支（base）选择 `dev`**，来源分支选择自己的任务分支。说明修改目的、主要变化、验证结果和未完成事项；尚未完成时可创建 Draft PR。
+
+### 同步与合并约定
+
+- 不直接向 `dev` 或 `main` 推送日常修改，不对共享分支强制推送。建议在 GitHub 设置分支保护，要求 PR 审查与 CI 通过；本节约定不代表已启用保护规则。
+- PR 至少由另一名组员检查，CI 通过后再合并到 `dev`；合并完成后可删除对应的远端任务分支。
+- 开发期间若需同步其他成员的成果，先提交或妥善保存当前改动，再在自己的任务分支执行以下命令。出现冲突时与相关成员确认，解决后重新运行检查并提交，不直接覆盖他人修改。
+
+  ```bash
+  git fetch origin
+  git merge origin/dev
+  ```
+
+- 完成一个任务后，下一个任务重新从最新 `dev` 创建分支，不继续复用已合并的任务分支。
+- 里程碑交付前，由组内负责人组织验证，并创建 `dev` → `main` 的 PR；记录用于课程提交的 commit hash 或 tag。
+- 不提交虚拟环境、密钥和临时产物。课程 starter 保持原样，实验开发仅使用开发集，方法冻结后才评估最终集。
+
 ## 课程实验流程
 
 1. 运行课程 starter 自检并复现原始评分、资源计数和开发集基线；将研究原型适配到 starter 接口。
