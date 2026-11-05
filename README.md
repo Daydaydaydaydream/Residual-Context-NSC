@@ -1,10 +1,12 @@
-# CS5491 神经谱容量项目
+# Residual-Context NSC
+
+**面向 Transformer 架构排序的残差上下文神经谱容量研究**
 
 CS5491 课程组项目：研究 Neural Spectral Capacity（NSC）能否通过引入 Transformer 残差路径中的层序信息，改进架构排序与固定资源预算下的架构选择。
 
 本仓库以 Neural Spectral Capacity（NSC）为方法基线，核心实现及对应 MIT 许可证已随项目提供。课程 starter 数据与评测程序归档在 `course/nsc-starter/`。
 
-本项目是课程研究工程，不是上游官方仓库。
+本项目是 CS5491 课程研究工程，不是上游官方仓库。项目名为 **Residual-Context NSC**，发行包名为 `residual-context-nsc`；Python 导入路径继续使用 `cs5491_nsc`，兼容已有示例和实验脚本。
 
 ## 研究问题
 
@@ -49,11 +51,10 @@ S(alpha) = sum_l [A_l + F_l / (1 + alpha * sum_{j<l} q_j)]
 src/cs5491_nsc/          可安装的项目包：MP 工具与课程评分实现
 tests/                   自动化测试（pytest）
 examples/                受控 FFN 宽度换序示例
-scripts/                 可复现的研究操作脚本
+scripts/                 立项书 PDF 生成脚本及后续研究脚本
 course/nsc-starter/      课程 starter 数据和原始评测程序（逐字保留，不参与格式化）
-data/                    课程面板数据说明
-results/                 实验结果记录约定
-docs/                    课程主题、项目计划与立项书
+docs/                    课程主题、项目计划、立项书源文件及唯一正式 PDF
+docs/archive/            旧版立项书与历史校验产物压缩归档
 ```
 
 ## 环境与运行
@@ -142,11 +143,20 @@ proposed = score_transformer(layers, alpha=1.0)
 
 课程 starter 和固定 200 架构面板已归档在 `course/nsc-starter/`。在运行 starter 自检、完成评分接口适配并复现开发集基线前，不报告正式课程评估结果。上游仓库列出的其他基准数据、模型权重和训练资源仍属外部资源，并未随本项目提供。课程归档每个架构只有一个结果，因此本项目不估计训练种子不确定性。
 
+## 数据、结果与脚本约定
+
+- 课程数据统一使用 `course/nsc-starter/data/`，来源、版本与限制以 starter README 和 `provenance.json` 为准。额外数据需注明来源与许可，并与课程固定面板分开保存；替代数据仅用于开发调试，不能替代正式评估。开发过程不得查看最终集结果。
+- 上游另列的 GPT-2/LiteTransformerSearch、FlexiBERT、AutoFormer、NATS-Bench、MobileNetV3、Transformer-XL、LoNAS 资源不随项目提供，也不自动属于课程固定面板。
+- 实际运行实验后再创建 `results/`，记录精确命令、输入输出、数据划分、评分版本和代码提交；指标与对照按上面的课程实验流程记录。不得预填实验结果。
+- 研究脚本统一放入 `scripts/`，调用方式及输入输出随实验记录保存。
+- 测试覆盖 MP 密度归一化与支撑集、容量的形状对称性与单调性、缓存一致性，以及评分的层序敏感性、加性退化、输入校验和边界情况。`tests/conftest.py` 提供固定初始化标准差与换序层规格；新增行为时补充相关测试。
+- 本地临时预览与校验记录放入 `work/`，不提交版本库；正式立项书只保留 `docs/ProjectProposal-en.pdf`。历史材料与恢复方式见[文档索引](docs/README.md)。
+
 ## 参考资料
 
 文档索引见 [`docs/README.md`](docs/README.md)。
 
 - 课程项目主题说明：[`docs/topic-neural-spectral-capacity.pdf`](docs/topic-neural-spectral-capacity.pdf)
 - 项目规划：[`docs/project-plan.md`](docs/project-plan.md)
-- 立项书框架：[`docs/project-proposal-framework-cn.md`](docs/project-proposal-framework-cn.md)
+- 立项书：[`英文源文件`](docs/ProjectProposal-en.md) · [`正式 PDF`](docs/ProjectProposal-en.pdf)
 - NSC 方法论文与官方实现：[论文](https://arxiv.org/abs/2609.23087) · [代码仓库](https://github.com/Optima-CityU/neural-spectral-capacity)

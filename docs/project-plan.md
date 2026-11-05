@@ -1,4 +1,4 @@
-# CS5491 项目规划：NSC 层序上下文评分
+# Residual-Context NSC 项目规划（CS5491）
 
 ## 项目目标
 

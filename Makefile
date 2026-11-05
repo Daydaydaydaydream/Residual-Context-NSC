@@ -28,7 +28,7 @@ test:
 check: lint test
 
 starter:
-	cd course/nsc-starter && ../../$(PYTHON) check_starter.py
+	cd course/nsc-starter && $(if $(findstring /,$(PYTHON)),$(abspath $(PYTHON)),$(PYTHON)) check_starter.py
 
 demo:
 	$(PYTHON) -m examples.reorder_demo

@@ -3,9 +3,9 @@ requires = ["setuptools>=68"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "cs5491-neural-spectral-capacity"
+name = "residual-context-nsc"
 version = "0.1.0"
-description = "CS5491 course research on residual-context Neural Spectral Capacity scores."
+description = "Residual-context Neural Spectral Capacity for Transformer architecture ranking (CS5491 research project)."
 readme = "README.md"
 requires-python = ">=3.9"
 dependencies = [
