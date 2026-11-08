@@ -35,23 +35,30 @@ A_l = 3 H_l psi_MP(d, d / H_l, s) + psi_MP(d, d, s)
 F_l = 2 psi_MP(d, f_l, s)
 ```
 
-项目评分加入 FFN 负载代理 `q_l = d f_l s^4 / 2`：
+项目评分加入 FFN 负载代理 `q_l = 0.5 d f_l s^4` 和有符号层序权重：
 
 ```text
-S(alpha) = sum_l [A_l + F_l / (1 + alpha * sum_{j<l} q_j)]
+Q_l = sum_{j<l} q_j
+w(Q; beta) = 1 + beta * Q / (1 + |beta| * Q)
+S(beta) = sum_l [A_l + w(Q_l; beta) * F_l]
 ```
 
-`alpha = 0` 是加性消融，对应课程基线的原始 NSC 求和。负载代理假设两层独立高斯线性映射、中间 ReLU、各向同性输入，并忽略归一化和可学习缩放；它是项目中的待检验启发式，不是上游论文提出或证明的公式。
+`beta = 0` 是加性消融，逐项等于课程基线的原始 NSC 求和。`beta < 0` 对后续 FFN 容量做倒数阻尼，`beta > 0` 放大后续 FFN 容量；对 `Q >= 0` 有 `0 < w < 2`，首层 `Q_0 = 0` 因而权重恒为 1。极限为 `beta -> -inf` 时 `w -> 0`，`beta -> +inf` 时 `w -> 2`。
 
-实验中将纳入 harmonic/min 聚合作为对照，以区分一般非加性聚合与**权重由前序残差负载决定的层序依赖**。
+另外实现两个预先声明的对照：
+
+- **共同加权（scope = joint）**：把同一权重同时作用于 `A_l + F_l`，用于区分“只调整 FFN”与“调整整个残差分支”。
+- **指数形式（form = exponential）**：`beta < 0` 时用 `exp(-|beta| Q)`，`beta > 0` 时用其反射 `2 - exp(-|beta| Q)`；与主形式同为零点 1、同向、同 `(0, 2)` 范围，但尾部不同。
+
+负载代理假设两层独立高斯线性映射、中间 ReLU、各向同性输入，并忽略归一化和可学习缩放；它是项目中的待检验启发式，不是上游论文提出或证明的公式。
 
 ## 项目结构
 
 ```text
-src/cs5491_nsc/          可安装的项目包：MP 工具与课程评分实现
+src/cs5491_nsc/          可安装的项目包：MP 工具、评分实现与 starter 适配层
 tests/                   自动化测试（pytest）
 examples/                受控 FFN 宽度换序示例
-scripts/                 立项书 PDF 生成脚本及后续研究脚本
+scripts/                 立项书 PDF 生成、starter 适配器与基线核对脚本
 course/nsc-starter/      课程 starter 数据和原始评测程序（逐字保留，不参与格式化）
 docs/                    课程主题、项目计划、立项书源文件及唯一正式 PDF
 docs/archive/            旧版立项书与历史校验产物压缩归档
@@ -75,6 +82,7 @@ make install
 make check      # lint + 格式检查 + 测试，与 CI 一致
 make demo       # 受控 FFN 换序示例
 make starter    # 课程 starter 自检
+make verify     # 核对适配层 beta=0 与 starter 原始 NSC 一致（全部 200 个配置）
 ```
 
 ### 受控换序示例
@@ -83,15 +91,15 @@ make starter    # 课程 starter 自检
 python -m examples.reorder_demo
 ```
 
-预期输出（原始 NSC 对两种顺序完全相同，残差上下文评分则不同）：
+预期输出（原始 NSC 对两种顺序完全相同，主评分和两个对照则不同）：
 
 ```text
-Original additive NSC:
-  [256, 512]: 121.820170
-  [512, 256]: 121.820170
-Residual-context score (alpha=1):
-  [256, 512]: 121.697831
-  [512, 256]: 121.692809
+score                                        [256, 512]   [512, 256]
+Original additive NSC (beta=0 ablation)      121.820170   121.820170
+Signed beta=-1 (FFN only)                    121.697831   121.692809
+Signed beta=+1 (FFN only)                    121.942508   121.947530
+Control: signed beta=+1 (joint)              122.008670   122.079509
+Control: exponential beta=-1 (FFN only)      121.697671   121.692476
 ```
 
 ### 课程 starter
@@ -102,6 +110,24 @@ starter 自带评测程序，只依赖 Python 标准库。运行自检与开发�
 cd course/nsc-starter
 python3 check_starter.py
 python3 evaluate.py --split development --output development_results.json
+```
+
+适配层提供评测器要求的 `score(config)` 与 `ablation(config)`。默认 `beta = 1`；用环境变量扫描主设置和两个对照，`ablation` 始终使用 `beta = 0`：
+
+```bash
+cd course/nsc-starter
+NSC_BETA=1 python3 evaluate.py --split development \
+    --student ../../scripts/student_score.py
+NSC_BETA=-1 NSC_FORM=exponential python3 evaluate.py --split development \
+    --student ../../scripts/student_score.py
+NSC_BETA=1 NSC_SCOPE=joint python3 evaluate.py --split development \
+    --student ../../scripts/student_score.py
+```
+
+先从仓库根目录运行适配层核对，确认全部 200 个配置在 `beta = 0` 时与 starter 的原始 NSC 一致：
+
+```bash
+python scripts/verify_adapter.py
 ```
 
 ### 上游 NSC 通用接口
@@ -116,15 +142,29 @@ ffn_capacity = 2 * psi_mp(2048, 512, sigma)
 课程比较固定使用 `s = 0.02`，评分接口已据此提供：
 
 ```python
-from cs5491_nsc import TransformerLayerSpec, original_nsc_score, score_transformer
+from cs5491_nsc import (
+    TransformerLayerSpec,
+    ablation_config,
+    original_nsc_score,
+    score_config,
+    score_transformer,
+)
 
 layers = [
     TransformerLayerSpec(hidden_width=128, heads=4, ffn_width=256),
     TransformerLayerSpec(hidden_width=128, heads=4, ffn_width=512),
 ]
-baseline = original_nsc_score(layers)
-proposed = score_transformer(layers, alpha=1.0)
+baseline = original_nsc_score(layers)  # beta = 0
+main = score_transformer(layers, beta=1.0)
+joint = score_transformer(layers, beta=1.0, scope="joint")
+exponential = score_transformer(layers, beta=-1.0, form="exponential")
+
+config = {"d_model": 128, "n_layer": 2, "n_head": 4, "d_inner": [256, 512]}
+assert score_config(config, beta=0.0) == baseline
+assert ablation_config(config) == baseline
 ```
+
+早期非负 `alpha` 原型仍作为兼容接口保留，等价于 `beta = -alpha`；新代码应使用 `beta`。
 
 ## 开发规范
 
@@ -202,7 +242,7 @@ git push -u origin feat/zhang-evaluation-adapter
 2. 对比原始 NSC、位置加权教学示例、残差上下文评分、加性消融、参数量、参考 FLOPs 及 harmonic/min 聚合。
 3. 报告 Spearman ρ、Kendall τb、并列数，以及同宽且参数量相差不超过 10% 的比较数量。
 4. 在 10M、20M、30M、50M 参数上限下评估 `k = 1, 3` 的最佳困惑度和相对遗憾，并对比均匀随机选择。
-5. 只用开发集选择 `alpha` 和方法设置；冻结方案后再运行最终集。保存精确命令、配置与提交标识。
+5. 只用开发集选择 `beta` 和方法设置；冻结方案后再运行最终集。保存精确命令、配置与提交标识。
 
 课程 starter 和固定 200 架构面板已归档在 `course/nsc-starter/`。在运行 starter 自检、完成评分接口适配并复现开发集基线前，不报告正式课程评估结果。上游仓库列出的其他基准数据、模型权重和训练资源仍属外部资源，并未随本项目提供。课程归档每个架构只有一个结果，因此本项目不估计训练种子不确定性。
 

@@ -1,4 +1,4 @@
-.PHONY: help install lint format test check starter demo clean
+.PHONY: help install lint format test check starter demo verify clean
 
 PYTHON ?= python
 
@@ -10,6 +10,7 @@ help:
 	@echo "check    Lint, format check and tests (what CI runs)"
 	@echo "starter  Run the course starter self-check"
 	@echo "demo     Run the controlled FFN reordering example"
+	@echo "verify   Check beta=0 adapter scores against original NSC on all 200 configs"
 
 install:
 	$(PYTHON) -m pip install -e ".[dev]"
@@ -32,6 +33,9 @@ starter:
 
 demo:
 	$(PYTHON) -m examples.reorder_demo
+
+verify:
+	$(PYTHON) scripts/verify_adapter.py
 
 clean:
 	rm -rf .pytest_cache .ruff_cache .coverage htmlcov
