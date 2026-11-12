@@ -4,6 +4,7 @@
 
 | 文件 | 内容 | 用途 |
 |---|---|---|
+| [`selected-settings.md`](selected-settings.md) | 三种选中配置、开发集命令与输出口径 | 实验交接与正式冻结准备 |
 | [`topic-neural-spectral-capacity.pdf`](topic-neural-spectral-capacity.pdf) | 课程主题说明（官方原件） | 核对研究问题、数据划分与提交要求 |
 | [`project-plan.md`](project-plan.md) | 项目规划与时间表 | 里程碑安排、本周优先事项、风险应对 |
 | [`ProjectProposal-en.md`](ProjectProposal-en.md) | 唯一立项书源文件（英文，含评估表格） | 2026-10-15 23:59 北京时间提交；按 A4 / Times New Roman 12 pt / 2.5 cm 页边距 / 单倍行距导出一页 PDF |

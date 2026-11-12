@@ -238,6 +238,8 @@ git push -u origin feat/zhang-evaluation-adapter
 
 ## 课程实验流程
 
+三种已选设置及开发集完整评估命令见[选中配置与评估命令](docs/selected-settings.md)，含 macOS/Linux、Windows PowerShell 用法及遗憾指标口径。
+
 1. 运行课程 starter 自检并复现原始评分、资源计数和开发集基线；将研究原型适配到 starter 接口。
 2. 对比原始 NSC、位置加权教学示例、残差上下文评分、加性消融、参数量、参考 FLOPs 及 harmonic/min 聚合。
 3. 报告 Spearman ρ、Kendall τb、并列数，以及同宽且参数量相差不超过 10% 的比较数量。
