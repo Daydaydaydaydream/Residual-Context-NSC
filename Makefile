@@ -1,4 +1,4 @@
-.PHONY: help install lint format test check starter demo verify baseline clean
+.PHONY: help install lint format test check starter demo verify baseline sweep clean
 
 PYTHON ?= python
 
@@ -12,6 +12,7 @@ help:
 	@echo "demo     Run the controlled FFN reordering example"
 	@echo "verify   Check beta=0 adapter scores against original NSC on all 200 configs"
 	@echo "baseline Reproduce the development baseline and compare it with the reference"
+	@echo "sweep    Run the 33-run development beta sweep for the three settings"
 
 install:
 	$(PYTHON) -m pip install -e ".[dev]"
@@ -40,6 +41,9 @@ verify:
 
 baseline:
 	$(PYTHON) scripts/verify_baseline.py
+
+sweep:
+	$(PYTHON) scripts/sweep_beta.py
 
 clean:
 	rm -rf .pytest_cache .ruff_cache .coverage htmlcov
