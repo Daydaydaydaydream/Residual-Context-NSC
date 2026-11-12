@@ -116,7 +116,7 @@ def select_betas(rows: list[dict]) -> dict[str, dict]:
             key=lambda row: (
                 row["spearman_rho"],
                 -abs(row["beta"]),
-                0 if row["beta"] < 0 else 1,
+                1 if row["beta"] < 0 else 0,
             ),
         )
     return selected
