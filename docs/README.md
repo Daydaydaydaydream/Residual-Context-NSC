@@ -7,10 +7,12 @@
 | [`topic-neural-spectral-capacity.pdf`](topic-neural-spectral-capacity.pdf) | 课程主题说明（官方原件） | 核对研究问题、数据划分与提交要求 |
 | [`project-plan.md`](project-plan.md) | 项目规划与时间表 | 里程碑安排、本周优先事项、风险应对 |
 | [`ProjectProposal-en.md`](ProjectProposal-en.md) | 唯一立项书源文件（英文，含评估表格） | 2026-10-15 23:59 北京时间提交；按 A4 / Times New Roman 12 pt / 2.5 cm 页边距 / 单倍行距导出一页 PDF |
-
 | [`ProjectProposal-en.pdf`](ProjectProposal-en.pdf) | 当前正式英文立项书 PDF | 与英文源文件配套，仓库内仅保留这一份 |
 | [`CS5491-项目背景与研究动机.pdf`](CS5491-项目背景与研究动机.pdf) | 项目背景与研究动机 | 辅助研究材料 |
 | [`archive/proposal-2026-10-13.zip`](archive/proposal-2026-10-13.zip) | 旧中文立项书、英文稿预览图和历史校验记录 | 历史参考，不作为当前提交版本 |
+| [`method-notes.md`](method-notes.md) | 方法补充：符号表、`q_l` 推导、换序算例、假设边界 | 写报告 §2 与答辩时引用 |
+| [`data-notes.md`](data-notes.md) | 数据说明：字段、预算口径、审计结果、已知的坑 | 复现与数据答疑 |
+| [`report/`](report/) | 最终报告骨架（`final-report.docx`）与写作规范（`report-plan.md`） | 11/17 初稿，11/19 提交 |
 
 ## 立项书生成与历史归档
 
