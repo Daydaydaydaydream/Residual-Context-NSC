@@ -1,5 +1,20 @@
 # β 扫描（开发集，33 组）
 
+## 最新重跑：2026-11-12（北京时间）
+
+当前结果文件已由修复后的代码 `f9be5dd94924be7e31a8fe61eb427ec7c68623f1` 在本机重新生成。
+环境：conda `cs5491-nsc`，Python 3.12.16，Darwin arm64，NumPy 2.5.4、SciPy 1.18.1。
+
+```bash
+conda activate cs5491-nsc
+make check starter verify baseline
+python scripts/sweep_beta.py
+```
+
+本次验证：140 项测试通过，覆盖率 99%；starter 自检和 200 个配置适配核验通过；基线与参考结果在 1e-12 容忍范围内无差异。33 组扫描的所有非计时字段与原记录完全一致，选中 β 仍为主方法 -100、共同加权 -1、指数形式 -100。扫描耗时约 3.5 秒。
+
+以下保留首次实验的环境与说明，旧版本号、环境及耗时属于历史记录。
+
 本目录记录 11/14 里程碑要求的 β 扫描：三种设置各跑 11 个 β，共 33 组，只使用课程 starter 的
 development split，用于给方法冻结提供选参依据。
 

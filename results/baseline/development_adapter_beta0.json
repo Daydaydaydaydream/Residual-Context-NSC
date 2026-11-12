@@ -6,10 +6,10 @@
   "matched_rule": "same d_model; min(total)/max(total)>=0.90",
   "timing_note": "Wall seconds for one panel; shared MP cache and method order affect timings. Benchmark cold/warm scoring separately for runtime claims.",
   "scoring_seconds": {
-    "original_nsc": 0.0014926999938325025,
-    "position_example": 0.0015002000000094995,
-    "student": 0.3806477999969502,
-    "ablation": 0.004289100004825741
+    "original_nsc": 0.001276249997317791,
+    "position_example": 0.0011950000189244747,
+    "student": 0.16569316713139415,
+    "ablation": 0.002418333198875189
   },
   "ranking": {
     "original_nsc": {
