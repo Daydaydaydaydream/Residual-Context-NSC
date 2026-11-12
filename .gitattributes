@@ -1,0 +1,4 @@
+# The course starter is archived verbatim and its data files are hashed in
+# data/provenance.json. Let the checked-out bytes match the repository bytes so
+# those hashes survive on systems with core.autocrlf=true.
+course/nsc-starter/data/*.json text eol=lf
