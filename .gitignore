@@ -35,3 +35,6 @@ coverage.xml
 # Regenerable document previews and verification reports
 work/
 output/
+
+# Word/WPS 打开文档时生成的临时锁文件
+~$*
