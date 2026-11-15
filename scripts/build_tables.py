@@ -106,7 +106,7 @@ def library_versions() -> dict[str, str]:
 
 
 def ranking_table(runs: dict[str, dict]) -> str:
-    """Seven-method ranking comparison against negative validation PPL."""
+    """Ranking comparison against negative validation PPL."""
     base = runs["baseline"]["ranking"]["original_nsc"]["spearman_rho"]
     lines = [
         "| method | Spearman rho | Kendall tau-b (all pairs) | tau-b (180 "
