@@ -8,7 +8,7 @@
 python scripts/build_tables.py
 ```
 
-本次运行总耗时 2.28 s，四次评测分别为：baseline 1.72 s、main 0.18 s、joint 0.19 s、exponential 0.19 s。
+本次运行总耗时 2.38 s，四次评测分别为：baseline 1.82 s、main 0.18 s、joint 0.19 s、exponential 0.19 s。
 
 本机首次执行约 8.5 s（首次导入与字节码编译），此后稳定在 2.2 s 左右。
 

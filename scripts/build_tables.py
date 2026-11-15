@@ -115,7 +115,9 @@ def ranking_table(runs: dict[str, dict]) -> str:
     ]
     for label, run, key in RANKING_ROWS:
         row = runs[run]["ranking"][key]
-        delta = "--" if label == "original NSC" else f"{row['spearman_rho'] - base:+.6f}"
+        delta = (
+            "--" if label == "original NSC" else f"{row['spearman_rho'] - base:+.6f}"
+        )
         lines.append(
             f"| {label} | {row['spearman_rho']:.6f} | "
             f"{row['all_pairs']['tau_b']:.6f} | "
@@ -141,9 +143,7 @@ def best_ppl_table(runs: dict[str, dict]) -> str:
     """
     header = budget_header(runs)
     lines = ["| " + " | ".join(header) + " |", "|" + "---|" * len(header)]
-    eligible = [
-        str(cell["eligible"]) for cell in runs["baseline"]["selection"]
-    ]
+    eligible = [str(cell["eligible"]) for cell in runs["baseline"]["selection"]]
     lines.append("| candidates in pool | " + " | ".join(eligible) + " |")
     for label, run, key in BUDGET_ROWS:
         cells = []
@@ -158,9 +158,7 @@ def regret_table(runs: dict[str, dict]) -> str:
     """The same table as regrets only, the form the report uses."""
     header = budget_header(runs)
     lines = ["| " + " | ".join(header) + " |", "|" + "---|" * len(header)]
-    eligible = [
-        str(cell["eligible"]) for cell in runs["baseline"]["selection"]
-    ]
+    eligible = [str(cell["eligible"]) for cell in runs["baseline"]["selection"]]
     lines.append("| candidates in pool | " + " | ".join(eligible) + " |")
     for label, run, key in BUDGET_ROWS:
         cells = [

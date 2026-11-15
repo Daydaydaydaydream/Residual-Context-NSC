@@ -88,9 +88,11 @@ def draw(series: dict, output: Path) -> None:
                     label=style["label"] if betas is NEGATIVE else None,
                 )
 
-    for axis, column, baseline_rho in ((ax_rho, 0, baseline[0]), (ax_tau, 1, baseline[1])):
-        axis.axhline(baseline_rho, linestyle=":", linewidth=1.2, color="0.35")
-        axis.annotate("original NSC", (zero + 0.05, baseline_rho), fontsize=7, color="0.35")
+    for axis, baseline_value in ((ax_rho, baseline[0]), (ax_tau, baseline[1])):
+        axis.axhline(baseline_value, linestyle=":", linewidth=1.2, color="0.35")
+        axis.annotate(
+            "original NSC", (zero + 0.05, baseline_value), fontsize=7, color="0.35"
+        )
         axis.set_xticks(range(len(TICKS)))
         axis.set_xticklabels(TICKS)
         axis.set_xlabel("|beta|   (solid: beta < 0, dashed: beta > 0)", fontsize=8.5)
