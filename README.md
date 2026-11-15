@@ -248,6 +248,60 @@ git push -u origin feat/zhang-evaluation-adapter
 
 课程 starter 和固定 200 架构面板已归档在 `course/nsc-starter/`。在运行 starter 自检、完成评分接口适配并复现开发集基线前，不报告正式课程评估结果。上游仓库列出的其他基准数据、模型权重和训练资源仍属外部资源，并未随本项目提供。课程归档每个架构只有一个结果，因此本项目不估计训练种子不确定性。
 
+## 复现开发集结果
+
+从干净环境复现两张结果表和图 1，约 1 分钟（不含安装依赖）。全部命令在仓库根目录执行。
+
+### 环境
+
+| 项 | 值 |
+|---|---|
+| Python | 3.12（`.python-version`；CI 矩阵为 3.10 / 3.12） |
+| 依赖 | `numpy`、`scipy`，通过 `pip install -e ".[dev]"` 安装；仅在重新生成图 1 时需要 `matplotlib` |
+| 本机记录 | macOS arm64，Python 3.12.16，NumPy 2.5.4，SciPy 1.18.1（见 `docs/selected-settings.md`）；表格生成记录另见 `results/tables/README.md` |
+| GPU | 不需要 |
+
+### 命令与预期输出
+
+```bash
+python -m pip install -e ".[dev]"
+
+# 1) starter 自检：期望打印 PASS，玩具例 121.820169804（两种顺序相同）
+cd course/nsc-starter && python check_starter.py && cd ../..
+
+# 2) 基线双口径核对：与 expected_development.json 逐项 0 差异（容忍 1e-12）
+python scripts/verify_baseline.py
+
+# 3) 适配层一致性：200 个配置上 beta=0 与原始 NSC 的相对差 <= 1e-10
+python scripts/verify_adapter.py
+
+# 4) 生成排序表、预算表与图 1 的绘图输入
+python scripts/build_tables.py
+
+# 5) 重新生成图 1（需要 matplotlib）
+python scripts/make_figures.py
+```
+
+跑完后应得到下列关键数字（开发集 100 个架构）：
+
+| 指标 | 期望值 |
+|---|---:|
+| 原始 NSC 的 Spearman ρ | 0.969745 |
+| 主方法 β=−100 的 ρ | 0.972817 |
+| 指数形式 β=−100 的 ρ | 0.972241 |
+| 主方法在 10M / k=1 的遗憾 | 0.0000 |
+| 受控配对数量 | 180 |
+
+### 耗时
+
+| 步骤 | 耗时 |
+|---|---|
+| `build_tables.py`（首次） | ≈ 8.5 s（模块导入与字节码编译） |
+| `build_tables.py`（稳定后） | ≈ 2.4 s（baseline 1.82 s + 三次评分各约 0.19 s） |
+| `check_starter.py` | < 1 s |
+
+上述为单机 CPU 上的一次评分耗时，随机器变化；它衡量的是评分成本，不是训练成本。因为 `psi_mp` 带缓存，同一进程内的后续评测会明显快于首次。
+
 ## 数据、结果与脚本约定
 
 - 课程数据统一使用 `course/nsc-starter/data/`，来源、版本与限制以 starter README 和 `provenance.json` 为准。额外数据需注明来源与许可，并与课程固定面板分开保存；替代数据仅用于开发调试，不能替代正式评估。开发过程不得查看最终集结果。
