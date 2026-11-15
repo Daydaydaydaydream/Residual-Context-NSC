@@ -134,9 +134,17 @@ def budget_header(runs: dict[str, dict]) -> list[str]:
 
 
 def best_ppl_table(runs: dict[str, dict]) -> str:
-    """Best revealed validation PPL, with the absolute regret in parentheses."""
+    """Best revealed validation PPL, with the absolute regret in parentheses.
+
+    The first row repeats the per-cell candidate count, so the budget table shows
+    how many architectures each cell could choose from.
+    """
     header = budget_header(runs)
     lines = ["| " + " | ".join(header) + " |", "|" + "---|" * len(header)]
+    eligible = [
+        str(cell["eligible"]) for cell in runs["baseline"]["selection"]
+    ]
+    lines.append("| candidates in pool | " + " | ".join(eligible) + " |")
     for label, run, key in BUDGET_ROWS:
         cells = []
         for cell in runs[run]["selection"]:
@@ -150,6 +158,10 @@ def regret_table(runs: dict[str, dict]) -> str:
     """The same table as regrets only, the form the report uses."""
     header = budget_header(runs)
     lines = ["| " + " | ".join(header) + " |", "|" + "---|" * len(header)]
+    eligible = [
+        str(cell["eligible"]) for cell in runs["baseline"]["selection"]
+    ]
+    lines.append("| candidates in pool | " + " | ".join(eligible) + " |")
     for label, run, key in BUDGET_ROWS:
         cells = [
             f"{cell['methods'][key]['mean_regret']:.4f}"
@@ -247,6 +259,7 @@ def main() -> int:
         "# 预算选择\n\n"
         f"{header}\n"
         "## 入选最佳 PPL（括号内为绝对遗憾 = 选中最优 PPL - 池内最优 PPL）\n\n"
+        "第一行 `candidates in pool` 是该档预算的可行架构数。\n\n"
         f"{best_ppl_table(runs)}\n\n"
         "## 遗憾值\n\n"
         "数值为 `mean_best_ppl - oracle_ppl`，绝对差值，不是相对遗憾；"
@@ -281,9 +294,11 @@ def main() -> int:
     )
     wrote_curve = write_beta_curve(output_dir / "beta-curve.csv")
 
-    files = ["ranking.md", "budget.md", "tables.json"]
+    files = ["ranking.md", "budget.md", "tables.json", "README.md"]
     if wrote_curve:
         files.append("beta-curve.csv")
+    if (output_dir / "fig1-rho-vs-beta.png").is_file():
+        files.append("fig1-rho-vs-beta.png")
     (output_dir / "README.md").write_text(
         "# 开发集结果表（11/16 交付）\n\n"
         "两张表由冻结后的三种设置重新跑出，只使用 development split；"
@@ -292,9 +307,14 @@ def main() -> int:
         "```bash\n"
         "python scripts/build_tables.py\n"
         "```\n\n"
-        f"总耗时约 {total:.1f} s，四次评测分别为："
+        f"本次运行总耗时 {total:.2f} s，四次评测分别为："
         + "、".join(f"{name} {seconds:.2f} s" for name, seconds in timings.items())
         + "。\n\n"
+        "本机首次执行约 8.5 s（首次导入与字节码编译），此后稳定在 2.2 s 左右。\n\n"
+        "## 随机种子\n\n"
+        "预算选择用 starter 的固定调度 `seed = 202627 + budget + k`，"
+        "200 次重复；重复只用于打散评分并列和构造均匀随机参照，"
+        "不是训练种子标准差。`tables.json` 的 `meta.random_seed` 里同样记录。\n\n"
         "## 环境\n\n"
         "| item | value |\n|---|---|\n"
         + "\n".join(f"| {key} | {value} |" for key, value in library_versions().items())
@@ -304,7 +324,8 @@ def main() -> int:
         "- 排序表：Spearman rho 与 Kendall tau-b 均对负验证 PPL 计算；"
         "`score ties` 是评分并列的对数。\n"
         "- 预算表：每档预算取可行池中分数最高的 k 个，报记录 PPL；"
-        "遗憾为 `mean_best_ppl - oracle_ppl`，是绝对差值。\n"
+        "遗憾为 `mean_best_ppl - oracle_ppl`，是绝对差值；"
+        "第一行 `candidates in pool` 是该档预算的可行架构数。\n"
         "- 200 次重复只用于打散评分并列和构造均匀随机参照，"
         "不是训练种子标准差。\n"
         "- `beta-curve.csv` 是图 1（rho / tau-b 随 |beta| 变化）的绘图输入，"
