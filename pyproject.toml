@@ -1,0 +1,63 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "residual-context-nsc"
+version = "0.1.0"
+description = "Residual-context Neural Spectral Capacity for Transformer architecture ranking (CS5491 research project)."
+readme = "README.md"
+requires-python = ">=3.9"
+dependencies = [
+    "numpy>=1.23",
+    "scipy>=1.9",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.4",
+    "pytest-cov>=4.1",
+    "ruff>=0.6",
+]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+# Vendored upstream MIT license travels with the scoring code it covers.
+cs5491_nsc = ["LICENSE"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q --strict-markers"
+
+[tool.ruff]
+line-length = 88
+target-version = "py39"
+src = ["src", "tests"]
+# Vendored code is reproduced byte-for-byte and must not be reformatted.
+extend-exclude = ["course/nsc-starter"]
+
+[tool.ruff.lint]
+select = [
+    "E",    # pycodestyle errors
+    "W",    # pycodestyle warnings
+    "F",    # pyflakes
+    "I",    # isort
+    "UP",   # pyupgrade
+    "B",    # flake8-bugbear
+    "SIM",  # flake8-simplify
+]
+ignore = [
+    "E501",  # line length is delegated to the formatter
+]
+
+[tool.ruff.lint.per-file-ignores]
+# The course starter is vendored verbatim and must not be reformatted.
+"course/nsc-starter/**" = ["ALL"]
+
+[tool.ruff.lint.isort]
+known-first-party = ["cs5491_nsc"]
+
+[tool.coverage.run]
+source = ["src/cs5491_nsc"]

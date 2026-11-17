@@ -1,0 +1,3 @@
+# Editable install with the development extras (pytest, ruff).
+# The core project itself only needs NumPy and SciPy.
+-e ".[dev]"
